@@ -1,0 +1,21 @@
+name: file
+
+channels:
+  - conda-forge
+  - defaults
+
+dependencies:
+  - python
+  - pip
+  - numpy
+  - pandas
+  - matplotlib
+  - tqdm
+  - subprocess32
+  - pillow
+  - scikit-learn
+  - joblib
+  - plotly
+  - multiprocessing
+  - pyyaml
+

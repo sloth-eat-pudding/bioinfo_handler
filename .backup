@@ -1,0 +1,220 @@
+
+# 暫存------------------------------
+# query 小用法
+# chroms = ['chr' + str(i) for i in range(1, 23)]
+# # df = df.query("CHROM in @chroms",inplace=True)
+
+# self.df.to_csv(self.output_path, sep="\t",
+#                index=False, header=self.header)
+
+# def reset_merge(df: pd.DataFrame, merge_col: list):
+#     df_copy = df.copy()
+#     for col in df_copy.columns:
+#         if col.endswith(merge_col[0]):
+#             # 獲取對應的 _y 欄位名稱
+#             col_y = col[:-2] + merge_col[1]
+#             # 檢查 _y 欄位是否存在
+#             if col_y in df_copy.columns:
+#                 # 以 _x 欄位為主，可以根據需要進行填充或替換
+#                 # 這裡的策略是：如果 _x 欄位為 NaN，則用 _y 欄位的值填充
+#                 df_copy[col] = df_copy[col].fillna(df_copy[col_y])
+#                 # 刪除 _y 欄位
+#                 df_copy.drop(col_y, axis=1, inplace=True)
+#             # 重命名 _x 欄位，移除後綴
+#             df_copy.rename(columns={col: col[:-2]}, inplace=True)
+#     return df_copy
+
+
+# def get_base_count(row, base_col, count_col):
+#     """
+#     mpileup 用的函數
+#     取得單點上的某個字有多少個
+#     """
+#     count_dict = row[count_col]
+#     base = row[base_col]
+
+#     if isinstance(count_dict, dict):
+#         if base in count_dict:
+#             return count_dict[base]
+#         else:
+#             return 0
+#         # if '.' in count_dict and ',' in count_dict:
+#         #     return count_dict['.'] + count_dict[',']
+#         # elif ',' in count_dict:
+#         #     return count_dict[',']
+#         # elif '.' in count_dict:
+#         #     return count_dict['.']
+#     else:
+#         return 0
+
+# def filter_indel(string):
+#     """
+#     mpileup 使用函數
+#     """
+
+#     signed_numbers_iter = re.finditer(r"[+-]\d+", string)
+#     signed_numbers_start_positions_and_len = [
+#         (match.start(), re.sub(r"[+-]", "", match.group()))
+#         for match in signed_numbers_iter
+#     ]
+#     substrings_to_remove = [
+#         string[pos_len[0]: pos_len[0] + int(pos_len[1]) + 1 + len(pos_len[1])]
+#         for i, pos_len in enumerate(signed_numbers_start_positions_and_len)
+#     ]
+#     for substring in substrings_to_remove:
+#         string = string.replace(substring, "")
+#     return string
+
+# BioinfoFileReader-----------------------------------------------------------------------
+
+# from collections import Counter
+    # def cut_read_base(self, lower: bool = False):
+    #     self.df["READ_BASE_FILTER"] = self.df["READ_BASE"].apply(filter_indel)
+
+    #     # ATCG, 正鏈結
+    #     # atcg. 負鏈結
+    #     if not lower:
+    #         self.df["READ_BASE_count"] = self.df["READ_BASE_FILTER"].map(
+    #             lambda x: dict(Counter(x.upper()))
+    #         )
+    #         cols = ["A", "T", "C", "G", "n", "#", "*", "+", "-", ".", ","]
+    #     else:
+    #         self.df["READ_BASE_count"] = self.df["READ_BASE_FILTER"].map(
+    #             lambda x: dict(Counter(x))
+    #         )
+    #         cols = [
+    #             "A",
+    #             "a",
+    #             "T",
+    #             "t",
+    #             "C",
+    #             "c",
+    #             "G",
+    #             "g",
+    #             "n",
+    #             "#",
+    #             "*",
+    #             "+",
+    #             "-",
+    #             ".",
+    #             ",",
+    #         ]
+    #     # for col in cols:
+    #     #     self.df[col] = self.df['READ_BASE_count'].map(
+    #     #         lambda x: x.get(col, 0))
+    #     return self
+
+    # def delete_ref_alt_col(self):
+    #     """
+    #     這個function主要是給sam檔案用的
+    #     """
+    #     file_name, file_extension = os.path.splitext(self.file_pattern)
+    #     output_file = file_name + "-norefalt.vcf"
+    #     print(output_file)
+    #     if not os.path.exists(output_file):
+    #         # 不知道會不會有問題
+    #         awk_command = f"awk 'BEGIN{{OFS=\"\\t\"}}{{print $1, $2, $3, $6, $7, $8, $9, $10, $11}}' {
+    #             self.file_pattern} > {output_file}"
+    #         # awk_command = f"awk 'BEGIN{{OFS=\"\t\"}}{{print $1, $2, $3, $6, $7, $8, $9, $10, $11}}' {self.file_pattern} > {output_file}"
+
+    #         logging.info("run command start ")
+    #         logging.info("run command: " + awk_command)
+    #         process = subprocess.Popen(
+    #             awk_command,
+    #             shell=True,
+    #             stdout=subprocess.PIPE,
+    #             stderr=subprocess.PIPE,
+    #             text=True,
+    #         )
+    #         # stdout, stderr = process.communicate()
+    #         # print(stdout)
+    #         logging.info("run command end ")
+    #     else:
+    #         logging.debug("file exists not run command ")
+
+    #     self.columns.remove("REF")
+    #     self.columns.remove("ALT")
+    #     self.file_pattern = output_file
+    #     return self
+
+    # """ 
+    # # class 
+    # # make compare
+    # $whatshap_path compare ${data_config[hifiasm]} "$calculate_path.vcf" --switch-error-bed $calculate_path.bed >$calculate_path.compare
+    
+    # # make block
+    # grep -e "0|1" -e "1|0" $calculate_path.vcf |
+    #     grep -v "#" |
+    #     awk '{
+    #     split($9, tags, ":")
+    #     split($10, values, ":")
+    #     for (i=1; i<=length(tags); i++) {
+    #         if (tags[i] == "GT") {
+    #             gt_value = values[i]
+    #         }
+    #         if (tags[i] == "PS") {
+    #             ps_value = values[i]
+    #         }
+    #     }
+    #     print $1 "\t" $2 "\t" gt_value "\t" ps_value
+    # }' |
+    #     sort -k1,1 -k4,4n -k2,2n |
+    #     awk  '{
+    #     if( $4 != upPS ){
+    #         if(NR>1 && count > 1){
+    #             print upChr "\t" strPos "\t" upPos - strPos "\t" count
+    #         }
+
+    #         strPos = $2
+    #         count=0
+    #     }
+    #     upPS = $4
+    #     upPos = $2
+    #     upChr = $1
+    #     count++
+    # }
+    # END{
+    #     print upChr "\t" strPos "\t" upPos - strPos "\t" count
+    # }' | sort -k3rn >$calculate_path.block
+    
+    # # phased count
+    # awk '!/^#/ {phased += gsub(/\\|/, \"\")} END {print phased}' $calculate_path.vcf
+    
+    # # unphased count
+    # awk '!/^#/ && length($5) == 1 && length($6) == 1 {unphased += gsub(/0\\/1:/, \"\")} END {print unphased}' $calculate_path.vcf"
+    
+    # # phase_rate
+    # awk -v phased={phased} -v unphased={unphased} -v all_snp={phased+unphased} 'BEGIN {{print (all_snp==0 ? 0 : phased/all_snp) }}'
+    
+    # # switch error
+    # grep -e "Chromosome" -e "phased pairs of variants assessed:" -e "switch errors:" "$calculate_path.compare" |
+    # awk 'NR%5<=3 && NR%5>=1' |
+    # awk '{{
+    # if(NR%3==1){{printf $2"\\t"$3}} 
+    # if(NR%3==2){{printf "\\t"$6}} 
+    # if(NR%3==0){{printf "\\t"$3"\\n"}}}}' |
+    # awk '{{total+=$3;error+=$4;}}END{{print total, error, error/total}}'
+    
+    # # hamming distance
+    # grep -e "Chromosome" -e "--> covered variants:" -e "Block-wise Hamming distance:" $calculate_path.compare |
+    #     awk 'NR%5==1 || NR%5==4 || NR%5==0' |
+    #     awk '{if(NR%3==1){printf $3 "\t"}if(NR%3==2){printf $4 "\t"}if(NR%3==0){printf $4 "\n"}}' |
+    #     awk '{variant+=$2;Hamming+=$3}END{print variant, Hamming, Hamming/variant}'
+    # variant hamming hamming_variant_ratio 
+    
+    # # block N50
+    # awk 'ARGIND==1 { sum+=$3 }
+    #                     ARGIND==2 {
+    #                         count+=$3
+    #                         if(count >= sum/2) {
+    #                             print $3;
+    #                             exit;
+    #                         }
+    #                     }' "$calculate_path.block" "$calculate_path.block"
+    
+    # # block count
+    # wc -l $calculate_path.block | awk '{print $1}
+    
+    # # block sum
+    # awk '{{x=x+$3}} END{{print x}}' $calculate_path.block
+    # """
