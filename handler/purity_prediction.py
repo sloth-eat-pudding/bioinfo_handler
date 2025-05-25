@@ -27,10 +27,13 @@ def extract_features_from_csv(file_path):
     try:
         # Read CSV file
         try:
-            if file_path.endswith(".q1_q3"):
+            if file_path.endswith(".q1_q3") or file_path.endswith(".q1_q3_tmp"):
                 # Read file without headers; the first value represents 25% and the second represents 75%
                 values = pd.read_csv(file_path, header=None, sep="\t").iloc[0].tolist()
-                df = pd.DataFrame(values, index=["25%", "75%"], columns=["ratio"])
+                columns = ["25%", "75%"]
+                if file_path.endswith(".q1_q3_tmp"):
+                    columns.append("lohratio")
+                df = pd.DataFrame(values, index=columns, columns=["ratio"])
             else:
                 df = pd.read_csv(file_path, index_col=0)
             # print(df)
@@ -48,8 +51,11 @@ def extract_features_from_csv(file_path):
                 # 'std': df.loc['std', 'ratio'],
                 '25%': df.loc['25%', 'ratio'],
                 # '50%': df.loc['50%', 'ratio'],
-                '75%': df.loc['75%', 'ratio']
+                '75%': df.loc['75%', 'ratio'],
+                # 'lohratio': df.loc['lohratio', 'ratio']
             }
+            if file_path.endswith(".q1_q3_tmp"):
+                features['lohratio'] = df.loc['lohratio', 'ratio']
         except KeyError:
             logging.error(f"{file_path} 缺少必要的 `ratio` 統計數據")
             return None, None, None
@@ -99,7 +105,9 @@ def collect_csv_files(input_paths, name_pattern="*_1.csv"):
         if os.path.isfile(input_path):
             files.append(input_path)
         elif os.path.isdir(input_path):
-            files.extend(glob.glob(os.path.join(input_path, name_pattern)))
+            infolder = glob.glob(os.path.join(input_path, name_pattern))
+            # infolder = [f for f in infolder if 'n00' not in f]
+            files.extend(infolder)
         else:
             raise ValueError(f"輸入路徑 {input_path} 不存在或不是有效的文件/目錄")
     
@@ -174,6 +182,10 @@ def train_polynomial_model(X, y, degree=2, model_path=None):
         # coefficients = model.named_steps['ridge'].coef_
         intercept = model.named_steps['linear'].intercept_
         feature_names = model.named_steps['poly'].get_feature_names_out()
+        print(coefficients)
+        print(feature_names)
+        print(intercept)
+
         terms = [f"{coef:.4f}*{name}" for coef, name in zip(coefficients, feature_names)]
         equation = f"{intercept:.4f} + " + " + ".join(terms)
         equation = equation.replace("+ -", "- ")
@@ -359,6 +371,7 @@ def plot_prediction_vs_actual(prediction_data, output_path='purity_prediction_re
     
     # Get unique sample names for coloring
     unique_samples = list(set(sample_names))
+    print(unique_samples)
     # colors = plt.cm.tab10(np.linspace(0, 1, len(unique_samples)))
     
     # Create a color map for samples
@@ -560,7 +573,7 @@ class PurityPredictor:
             results.sort()
             
             # return results, {'function': 'calculate_purity_function'}
-            return results
+            # return results
         else:
             # 使用模型預測
             # 加載模型

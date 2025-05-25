@@ -315,11 +315,21 @@ class BioinfoFileReader:
         alt = self.df['ALT']
         ref = self.df['REF']
 
+        # 打印 alt 或 ref 为 nan 的行
+        nan_mask = alt.isna() | ref.isna()
+        # print(nan_mask)
+        if nan_mask.any():
+            logging.error("发现 alt 或 ref 为 nan 的行：")
+            logging.error(self.df[nan_mask])
+        self.df = self.df[~nan_mask]
+        alt = self.df['ALT']
+        ref = self.df['REF']
+
         # 定義各種條件
         condition_multi_allelic = alt.str.contains(',')
-        condition_insertion = (alt.str.len() > 1) & (ref.str.len() == 1)
-        condition_deletion = (alt.str.len() == 1) & (ref.str.len() > 1)
-        condition_snp = (alt.str.len() == 1) & (ref.str.len() == 1)
+        condition_insertion = ((alt.str.len() > 1) & (ref.str.len() == 1))
+        condition_deletion = ((alt.str.len() == 1) & (ref.str.len() > 1))
+        condition_snp = ((alt.str.len() == 1) & (ref.str.len() == 1))
 
         # 建立條件列表和對應的選擇值
         conditions = [
@@ -521,18 +531,17 @@ def tag_germline_all(vcf_df, germline_1000g, germline_dbsnp, germline_gnomad, ge
 
 def somatic_test(in_path):
     df = BioinfoFileReader(in_path, columns=["CHROM", "POS", "HIGHV", "LOWV", "DISAGREEV"]).reader().df
-    # df = df[df["HIGH"] == 0]
-    df["denominator"] = df["LOWV"] + df["DISAGREEV"]
-    df["numerator"] = df["LOWV"]
-    # df = df[df["denominator"] > 0]
-    # df = df[df["numerator"] > 0]
-    df["ratio_t"] = df["numerator"] / df["denominator"]
-    # df = df[df["ratio"] < 0.99]
-    # df["ratio"] = df["numerator"] / df["denominator"]
+    # # df = df[df["HIGH"] == 0]
+    # df["denominator"] = df["LOWV"] + df["DISAGREEV"]
+    # df["numerator"] = df["LOWV"]
+    # # df = df[df["denominator"] > 0]
+    # # df = df[df["numerator"] > 0]
+    # df["ratio_t"] = df["numerator"] / df["denominator"]
+    # # df = df[df["ratio"] < 0.99]
+    # # df["ratio"] = df["numerator"] / df["denominator"]
 
 
     return df
-
 
 def purity_test(in_path, bed_path=None):
     df = BioinfoFileReader(in_path, columns=["CHROM", "POS", "SOMATIC", "HP1_REF", "HP1_ALT", "HP2_REF", "HP2_ALT", "CONFIDENCE"]).reader().df
@@ -599,9 +608,13 @@ def purity_test(in_path, bed_path=None):
 
     # df = df[df["HP2_REF"] > 1]
     # df["ratio"] = 1/df["HP2_REF"]
+    # df["hp_ratio"] = (df["HP1_REF"] + df["HP1_ALT"]) / (df["HP1_REF"] + df["HP2_REF"] + df["HP1_ALT"] + df["HP2_ALT"])
+    # df = df[(df["hp_ratio"] >= 0.40) & (df["hp_ratio"] <= 0.60)]
+
     df["all_ref"] = df["HP1_REF"] + df["HP2_REF"]
     df = df[df["all_ref"] > 1]
-    df["ratio"] = df["HP1_REF"]/df["all_ref"]
+    df["ratio"] = df[["HP1_REF", "HP2_REF"]].apply(max, axis=1)/df["all_ref"]
+    # df["ratio"] = df["HP1_REF"]/df["all_ref"]
 
     # df = df[df["ratio"] < 0.99]
     # print(df.query("ratio >0.98 "))

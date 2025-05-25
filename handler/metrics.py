@@ -109,6 +109,7 @@ class PrecisionCalculator:
         # Split Category column and convert purity to numeric
         self.results[format] = self.results["Category"].str.split(",", expand=True).apply(lambda x: x.str.strip())
         self.results["purity"] = pd.to_numeric(self.results["purity"], errors='coerce')
+        self.results.query("purity != 1", inplace=True)
         print(self.results["software"].unique())
         
         # filter_softwares = ['ClairS_TO_v0_3_0_pileup_nonsomatic', 'Longphase_TO_v0_0_1', 'ClairS_TO_v0_3_0', 'DeepSomatic_TO_v1_8_0']
@@ -116,28 +117,40 @@ class PrecisionCalculator:
         #  'ClairS_TO_v0_3_0_pileup_nonsomatic' 'Longphase_TO_v0_0_1'
         #  'Longphase_TO_v0_0_1_2' 'Longphase_TO_v0_0_1_deepPON'
         #  'Longphase_TO_v0_0_1_deepVCF']
-        filter_softwares = ['ClairS_TO_v0_3_0_pileup_nonsomatic']
-        filter_softwares.extend(['Longphase_TO_v0_0_1_deepVCF', 'Longphase_TO_v0_0_1_deepPON'])
-        # filter_softwares.extend(['Longphase_TO_v0_0_1_deepPON'])
-        filter_softwares.extend(['Longphase_TO_v0_0_1_deepvcf'])
-        filter_softwares.extend(['Longphase_TO_v0_0_1_3_second75'])
-        filter_softwares.extend(['Longphase_TO_v0_0_1_second75'])
-        filter_softwares.extend(['Longphase_TO_v0_0_1_cluster_nhom_nremove'])
-        filter_softwares.extend(['Longphase_TO_v0_0_1_cluster_nhom'])
-        # filter_softwares.extend(['Longphase_TO_v0_0_1_diss3-add8'])
-        # filter_softwares.extend(['Longphase_TO_v0_0_1'])
-        filter_softwares.extend(['ClairS_TO_v0_3_0', 'DeepSomatic_TO_v1_8_0'])
-        filter_softwares.extend(['Longphase_TO_v0_0_1_2', 'Longphase_TO_v0_0_1_1'])
-        # filter_softwares.extend(['Longphase_TO_v0_0_1_curr'])
-        # filter_softwares.extend(['Longphase_TO_v0_0_1_1'])
-        filter_softwares.extend(['Longphase_TO_v0_0_1', 'Longphase_TO_v0_0_1_1'])
+        filter_softwares = ['ClairS_TO_ssrs_v0_3_0_pileup']
+        filter_softwares.extend(['ClairS_TO_ssrs_v0_3_0_pileup_nonsomatic'])
+        filter_softwares.extend(['ClairS_TO_ssrs_v0_3_0'])
+        filter_softwares.extend(['Longphase_TO_ssrs_v0_0_1'])
+        filter_softwares.extend(['Longphase_TO_ss_v0_0_1'])
+        # filter_softwares.extend(['Longphase_TO_deep_v0_0_1'])
+        # filter_softwares.extend(['Longphase_TO_deep_pileup_v0_0_1'])
+        filter_softwares.extend(['ClairS_TO_ss_v0_3_0'])
+        filter_softwares.extend(['ClairS_TO_ss_v0_3_0_pileup'])
+        filter_softwares.extend(['ClairS_TO_ss_v0_3_0_pileup_nonsomatic'])
+        filter_softwares.extend(['DeepSomatic_TO_v1_8_0'])
+        # filter_softwares = []
+
+        # filter_softwares.extend(['Longphase_TO_v0_0_1_deepVCF', 'Longphase_TO_v0_0_1_deepPON'])
+        # # filter_softwares.extend(['Longphase_TO_v0_0_1_deepPON'])
+        # filter_softwares.extend(['Longphase_TO_v0_0_1_deepvcf'])
+        # filter_softwares.extend(['Longphase_TO_v0_0_1_3_second75'])
+        # filter_softwares.extend(['Longphase_TO_v0_0_1_second75'])
+        # filter_softwares.extend(['Longphase_TO_v0_0_1_cluster_nhom_nremove'])
+        # filter_softwares.extend(['Longphase_TO_v0_0_1_cluster_nhom'])
+        # # filter_softwares.extend(['Longphase_TO_v0_0_1_diss3-add8'])
+        # # filter_softwares.extend(['Longphase_TO_v0_0_1'])
+        # filter_softwares.extend(['ClairS_TO_v0_3_0', 'DeepSomatic_TO_v1_8_0'])
+        # filter_softwares.extend(['Longphase_TO_v0_0_1_2', 'Longphase_TO_v0_0_1_1'])
+        # # filter_softwares.extend(['Longphase_TO_v0_0_1_curr'])
+        # # filter_softwares.extend(['Longphase_TO_v0_0_1_1'])
+        # filter_softwares.extend(['Longphase_TO_v0_0_1', 'Longphase_TO_v0_0_1_1'])
         self.results = self.results.query("software not in @filter_softwares")
         # self.results["software"] = self.results["software"].replace("Longphase_TO_v0_0_1", "Longphase_TO_v0_0_1_3")
         # self.results["Category"] = self.results["Category"].str.replace("Longphase_TO_v0_0_1", "Longphase_TO_v0_0_1_3", regex=False)
         # self.results["software"] = self.results["software"].replace("Longphase_TO_v0_0_1_2", "Longphase_TO_v0_0_1")
         # self.results["Category"] = self.results["Category"].str.replace("Longphase_TO_v0_0_1_2", "Longphase_TO_v0_0_1", regex=False)
-        self.results["software"] = self.results["software"].replace("Longphase_TO_v0_0_1_curr", "Longphase_TO_v0_0_1")
-        self.results["Category"] = self.results["Category"].str.replace("Longphase_TO_v0_0_1_curr", "Longphase_TO_v0_0_1", regex=False)
+        # self.results["software"] = self.results["software"].replace("Longphase_TO_v0_0_1_curr", "Longphase_TO_v0_0_1")
+        # self.results["Category"] = self.results["Category"].str.replace("Longphase_TO_v0_0_1_curr", "Longphase_TO_v0_0_1", regex=False)
         metric_list = ["F1-score", "Precision", "Recall"]
         
         # Add faceting plot generation
@@ -159,7 +172,10 @@ class PrecisionCalculator:
             # fig, axes = plt.subplots(n_rows, n_cols, figsize=(3*n_cols, 15*n_rows), sharey='row')
             fig, axes = plt.subplots(n_rows, n_cols, figsize=(3*n_cols, 4.5*n_rows), sharey='row')
             fig.suptitle(f"Metrics by Tumor Purity Across Samples – {variant_type}", fontsize=24)
-            
+            marker_list = {'default': markers.pop(5)}  # Remove and use the marker at index 5
+            for software in softwares_reverse:
+                marker = markers.pop(random.randint(0, len(markers) - 1))  # Randomly select a marker
+                marker_list[software] = marker
             # Plot each metric and sample combination
             for row_idx, metric in enumerate(metric_list):
                 for col_idx, sample in enumerate(samples):
@@ -173,7 +189,7 @@ class PrecisionCalculator:
                         software_data = sample_data[sample_data["software"] == software].sort_values("purity")
                         color = software_colors.get(software, software_colors['default'])
                         line_style = line_styles.get(software, line_styles['default'])
-                        marker = software_markers.get(software, software_markers['default'])
+                        marker = marker_list.get(software, marker_list['default'])
                         
                         ax.plot(software_data["purity"], 
                             software_data[metric],
@@ -211,7 +227,7 @@ class PrecisionCalculator:
             
             # Add shared legend
             handles = [plt.Line2D([0], [0],
-                                  marker=software_markers.get(sw, software_markers['default']),
+                                  marker=marker_list.get(sw, marker_list['default']),
                                   color=software_colors.get(sw, software_colors['default']),
                                   label=sw,
                                   linewidth=2)
@@ -227,6 +243,7 @@ class PrecisionCalculator:
                     dpi=300, 
                     bbox_inches='tight')
             plt.close()
+            print(f"Saved {plot_dir}/{variant_type}_metrics_combined.png")
             
         return self
 
@@ -430,7 +447,7 @@ class PrecisionCalculator:
             
         return self
 
-def get_result(precision_calculator, name, in_vcf_path=None, in_vcf_df=None, ans_vcf_path=None, ans_bed_path=None, test_chr=None, use_alt=True, check_type="snp", filter_type="PASS"):
+def get_result(precision_calculator, name, in_vcf_path=None, in_vcf_df=None, ans_vcf_path=None, ans_bed_path=None, test_chr=None, use_alt=True, check_type="snp", filter_type="PASS", no_filter=False):
     if check_type == "snv":
         check_type = "snp"
     merge_cols = ["CHROM", "POS", "ALT"] if use_alt else ["CHROM", "POS"]
@@ -441,10 +458,13 @@ def get_result(precision_calculator, name, in_vcf_path=None, in_vcf_df=None, ans
     # 讀取輸入
     vcf_df = None
     if in_vcf_df is None and ".vcf" in in_vcf_path:
-        vcf_df = BioinfoFileReader(in_vcf_path).reader().check_variant_type().df.query(
-            f"FILTER == '{filter_type}' and type_simple == '{check_type}'")
+        vcf_df = BioinfoFileReader(in_vcf_path).reader().check_variant_type().df
+        if no_filter:
+            vcf_df = vcf_df.query(f"type_simple == '{check_type}'")
+        else:
+            vcf_df = vcf_df.query(f"FILTER == '{filter_type}' and type_simple == '{check_type}'")
         vcf_df = vcf_df.drop_duplicates(subset=["CHROM", "POS"], keep='first')
-        vcf_df = vcf_df[merge_cols]
+        # vcf_df = vcf_df[merge_cols]
     else:
         use_alt = False
         vcf_df = in_vcf_df

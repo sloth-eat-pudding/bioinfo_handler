@@ -37,7 +37,7 @@ class CommandRunner:
         self.commands.insert(1, ["make -j 20 -C " + path])
         return self
     
-    def add_phase_command(self, bam_path, vcf_path, output_path, indel=False, background=False, test=False, tmp_num=""):
+    def add_phase_command(self, bam_path, vcf_path, output_path, indel=False, caller="clairs_to_ssrs", background=False, test=False, tmp_num=""):
         self.mkdir_folder(output_path)
         command = [
             # "valgrind --leak-check=full --show-leak-kinds=all -v -s ",
@@ -54,15 +54,20 @@ class CommandRunner:
             "--lge",
             "--sge",
             "--loh",
-            "--cnv",
+            # "--cnv",
+            "--caller", caller,
             # "--somaticConnectAdjacent", "6",
-            "--somaticConnectAdjacent", "8",
             # "--pon-file", f"{self.pon_path}/clairs-to_databases/1000g-pon.sites.vcf,{self.pon_path}/clairs-to_databases/CoLoRSdb.GRCh38.v1.1.0.deepvariant.glnexus.af-ge-0.001.vcf,{self.pon_path}/clairs-to_databases/dbsnp.b138.non-somatic.sites.vcf,{self.pon_path}/clairs-to_databases/gnomad.r2.1.af-ge-0.001.sites.vcf",
-            "--pon-file", f"{self.pon_path}/clairs-to_databases/1000g-pon.sites.vcf,{self.pon_path}/clairs-to_databases/CoLoRSdb.GRCh38.v1.1.0.deepvariant.glnexus.af-ge-0.001.vcf",
-            "--strict-pon-file", f"{self.pon_path}/clairs-to_databases/dbsnp.b138.non-somatic.sites.vcf,{self.pon_path}/clairs-to_databases/gnomad.r2.1.af-ge-0.001.sites.vcf",
+            # "--pon-file", f"{self.pon_path}/clairs-to_databases/1000g-pon.sites.vcf,{self.pon_path}/clairs-to_databases/CoLoRSdb.GRCh38.v1.1.0.deepvariant.glnexus.af-ge-0.001.vcf",
+            # "--strict-pon-file", f"{self.pon_path}/clairs-to_databases/dbsnp.b138.non-somatic.sites.vcf,{self.pon_path}/clairs-to_databases/gnomad.r2.1.af-ge-0.001.sites.vcf",
             # "--pon-file", f"{self.pon_path}/deepsomatic-to_databases/PON_dbsnp138_gnomad_PB1000g_pon.vcf,{self.pon_path}/deepsomatic-to_databases/AF_pacbio_PON_CoLoRSdb.GRCh38.AF0.05.vcf",
             # "-a", "35"
         ]
+        if "deep" in caller:
+            command.extend([
+                "--pon-file", f"{self.pon_path}/clairs-to_databases/1000g-pon.sites.vcf,{self.pon_path}/clairs-to_databases/CoLoRSdb.GRCh38.v1.1.0.deepvariant.glnexus.af-ge-0.001.vcf",
+                "--strict-pon-file", f"{self.pon_path}/clairs-to_databases/dbsnp.b138.non-somatic.sites.vcf,{self.pon_path}/clairs-to_databases/gnomad.r2.1.af-ge-0.001.sites.vcf"
+            ])
         if indel:
             command.append("--indels")
         if background:

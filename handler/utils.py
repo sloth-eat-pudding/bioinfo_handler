@@ -13,6 +13,8 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 from multiprocessing import Process, Pool
 from matplotlib.lines import Line2D # Import Line2D for legend handles
+import matplotlib.ticker as mtick
+from io import StringIO
 
 rainbow_color_map = {
     # "Red": "#e41a1c",       # 紅色
@@ -57,12 +59,16 @@ softwares = [
     'Longphase_TO_v0_0_1', # 0
     'DeepSomatic_TO_v1_8_0', # 1
     'ClairS_TO_v0_3_0', # 2
-    'Longphase_TO_v0_0_1_3', # 3
-    'Longphase_TO_v0_0_1_deepVCF', # 4
-    'Longphase_TO_v0_0_1_2', # 3
-    'Longphase_TO_v0_0_1_deepPON' # 5
-    'Longphase_TO_v0_0_1_1', # 4
-    'ClairS_TO_v0_3_0_pileup_nonsomatic', # 5
+    'Longphase_TO_v0_0_1_deepVCF', # 3
+    'A', # 4
+    'ClairS_TO_ss_v0_3_0', # 5
+    'Longphase_TO_ss_v0_0_1', # 7
+    'B', # 6
+    'ClairS_TO_v0_3_0_pileup_nonsomatic', # 8
+    'Longphase_TO_ssrs_v0_0_1', # 9
+    'ClairS_TO_ssrs_v0_3_0', # 10
+    # 'Longphase_TO_ss_v0_0_1', # 9
+    # 'ClairS_TO_ss_v0_3_0', # 10
 ]
 
 def get_random_color():
@@ -74,14 +80,17 @@ def get_random_color():
 
 # Define colors for different software
 software_colors = {
+    softwares[9]: rainbow_color_map["Orange"],
     softwares[0]: rainbow_color_map["Orange"],
     softwares[1]: rainbow_color_map["Violet"],
     softwares[2]: rainbow_color_map["Blue"],
+    softwares[10]: rainbow_color_map["Blue"],
     softwares[3]: rainbow_color_map["Green"],
     softwares[4]: rainbow_color_map["Indigo"],
     softwares[5]: rainbow_color_map["Red"],
     softwares[6]: rainbow_color_map["Cyan"],
     softwares[7]: rainbow_color_map["Brown"],
+    softwares[8]: rainbow_color_map["Pink"],
     # softwares[8]: rainbow_color_map["White"],
     'default': get_random_color()
 }
